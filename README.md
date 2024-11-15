@@ -1,6 +1,6 @@
 # `vanity`
 
-A *bLaZinGlY fAsT* tool for grinding vanity addresses on Solana.
+A _bLaZinGlY fAsT_ tool for grinding vanity addresses on Solana.
 
 ## 1) What
 
@@ -19,8 +19,8 @@ To compile for gpu, install via
 ```bash
 cargo install vanity --features=gpu
 ```
-If you don't have a GPU, consider using [vast.ai](https://cloud.vast.ai/?ref_id=126830). Pls use this referral link so that I can keep using GPUs.
 
+If you don't have a GPU, consider using [vast.ai](https://cloud.vast.ai/?ref_id=126830). Pls use this referral link so that I can keep using GPUs.
 
 Refer to the help via `vanity --help` for information on usage.
 
@@ -44,13 +44,31 @@ To actually make use of the resulting seed, refer to the `solana_program` docs:
 pub fn create_account_with_seed(
     from_pubkey: &Pubkey,
     // this is the resulting address, obtained via Pubkey::create_with_seed
-    to_pubkey: &Pubkey, 
+    to_pubkey: &Pubkey,
     base: &Pubkey,
     seed: &str,
     lamports: u64,
     space: u64,
     owner: &Pubkey,
 ) -> Instruction
+```
+
+## Docker
+
+docker files are available for both cpu / gpu builds
+
+cpu build & run:
+
+```bash
+docker build -t vanity . -f Dockerfile
+docker run --rm vanity --base <BASE> --owner <OWNER> --target <TARGET>
+```
+
+gpu build and run:
+
+```bash
+docker build -t vanity-gpu . -f Dockerfile.gpu
+docker run --gpus all --rm vanity-gpu --base <BASE> --owner <OWNER> --target <TARGET>
 ```
 
 ## Contributions

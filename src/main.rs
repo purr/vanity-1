@@ -41,11 +41,10 @@ pub struct GrindArgs {
     pub owner: Pubkey,
 
     /// The target prefix and suffix for the pubkey
-    #[clap(long)] 
+    #[clap(long)]
     pub prefix: Option<String>,
-    #[clap(long)] 
+    #[clap(long)]
     pub suffix: Option<String>,
-
 
     /// Whether user cares about the case of the pubkey
     #[clap(long, default_value_t = false)]
@@ -281,7 +280,10 @@ fn grind(mut args: GrindArgs) {
                         let matches = match_target(&pubkey, &prefix, &suffix);
 
                         if matches {
-                            logfather::info!("out seed = {out:?} -> {}", core::str::from_utf8(&out[..16]).unwrap());
+                            logfather::info!(
+                                "out seed = {out:?} -> {}",
+                                core::str::from_utf8(&out[..16]).unwrap()
+                            );
                             EXIT.store(true, Ordering::SeqCst);
                             logfather::trace!("gpu thread {gpu_index} exiting");
                             return;
@@ -333,6 +335,26 @@ fn grind(mut args: GrindArgs) {
     });
 }
 
+fn maybe_bs58_aware_lowercase(target: &str, case_insensitive: bool) -> String {
+    // L is only char that shouldn't be converted to lowercase in case-insensitivity case
+    const LOWERCASE_EXCEPTIONS: &str = "L";
+
+    if case_insensitive {
+        target
+            .chars()
+            .map(|c| {
+                if LOWERCASE_EXCEPTIONS.contains(c) {
+                    c
+                } else {
+                    c.to_ascii_lowercase()
+                }
+            })
+            .collect::<String>()
+    } else {
+        target.to_string()
+    }
+}
+
 fn get_validated_targets(args: &GrindArgs) -> (Option<String>, Option<String>) {
     const BS58_CHARS: &str = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
@@ -372,7 +394,6 @@ extern "C" {
         case_insensitive: bool,
     );
 }
-
 
 #[cfg(feature = "gpu")]
 fn new_gpu_seed(gpu_id: u32, iteration: u64) -> [u8; 32] {
